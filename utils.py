@@ -81,10 +81,16 @@ class MailSearch():
             Expected output: JSON format (without dollar signs and with underscores in keys)
             Example: {{"supplier_name": "Example Supplier", "invoice_no": "12345", ...}}
             """
-
-        response = self.model.generate_content(prompt)
-
-        return response
+        while True:
+            try:
+                response = self.model.generate_content(prompt)
+                return response
+            except Exception as e:
+                if "check quota" in str(e):
+                    print("Quota exceeded. Retrying in 10 seconds...")
+                    time.sleep(20)
+                else:
+                    raise e
     
     def responseToJson(self, response):
 
@@ -103,7 +109,8 @@ class MailSearch():
                 "date": "Date",
                 "total_amount": "Total",
                 "card_details": "Payment details",
-                "arrival_date": "Arrival Date",
+                "arrival_dates": "Arrival Date",
+                "arrival_date": "Arrival Date"
             }
 
             json_data = {column_mapping.get(k, k): v for k, v in json_data.items()} 
@@ -125,7 +132,7 @@ class MailSearch():
                             for page_num in range(len(pdf_reader.pages)):
                                 page = pdf_reader.pages[page_num]
                                 extracted_data += page.extract_text()
-                                time.sleep(5)
+                                #time.sleep(10)
                                 model_response = self.googleModel(extracted_data)
                                 json_data = self.responseToJson(model_response)
                                 new_row_df = pd.DataFrame([json_data])
@@ -143,7 +150,7 @@ class MailSearch():
             for page_num in range(len(pdf_reader.pages)):
                 page = pdf_reader.pages[page_num]
                 extracted_data += page.extract_text()
-                time.sleep(5)
+                #time.sleep(10)
                 model_response = self.googleModel(extracted_data)
                 json_data = self.responseToJson(model_response)
                 
@@ -183,7 +190,4 @@ class MailSearch():
         self.searchEmailattachment()
         self.mailLogout()
         return self.df
-        
-
-
-        
+    
