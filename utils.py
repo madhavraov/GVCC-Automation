@@ -16,8 +16,8 @@ class MailSearch():
     def __init__(self) -> None:
         load_dotenv()
         self.mail = imaplib.IMAP4_SSL('outlook.office365.com')
-        self.username = 'madhavraov1985@outlook.com'
-        self.password = 'M!1system'
+        self.username = '@outlook.com'
+        self.password = ''
         self.email_ids = None
         self.df = pd.DataFrame({
             'Supplier Name': pd.Series(dtype='str'),
